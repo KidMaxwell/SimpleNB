@@ -191,7 +191,7 @@ class SimpleNBSim7020
      // <cid>: Optional. Although the documenation say can passing-in a <cid>, but actual
      // implementation dos not allowed (you get an ERROR).
      sendAT(GF("+CSOC=1,1,1"));
-     if (waitResponse(60000L) != 1) { return false; }
+     if (waitResponse(10000L) != 1) { return false; }
      int16_t cid = streamGetIntBefore('\n');
      waitResponse();
      if (cid < SIMPLE_NB_MUX_COUNT)
@@ -200,8 +200,8 @@ class SimpleNBSim7020
    }
 
    bool deactivateDataNetwork() {
-     sendAT(GF("+CSOC=0"));
-     if (waitResponse(60000L) != 1) { return false; }
+     sendAT(GF("+CSOCL=0"));
+     if (waitResponse(10000L) != 1) { return false; }
      return true;
    }
 
@@ -299,6 +299,7 @@ class SimpleNBSim7020
     // when not using SSL, the TCP application toolkit is more stable
     sendAT(GF("+CIPSTART="), GF("\"TCP"), GF("\",\""), host, GF("\","), port);
     int8_t rsp = 0;
+    waitResponse(timeout_ms, GF("OK" ACK_NL));
     rsp = waitResponse(timeout_ms, GF("CONNECT OK" ACK_NL),
                          GF("CONNECT FAIL" ACK_NL),
                          GF("ALREADY CONNECT" ACK_NL), GF("ERROR" ACK_NL),
@@ -365,7 +366,7 @@ class SimpleNBSim7020
   size_t modemGetAvailable(uint8_t mux) {
     if (!sockets[mux]) return 0;
 
-    sendAT(GF("+CIPRXGET=4"), mux);
+    sendAT(GF("+CIPRXGET=4"));
     size_t result = 0;
     if (waitResponse(GF("+CIPRXGET:")) == 1) {
       streamSkipUntil(',');  // Skip mode 4

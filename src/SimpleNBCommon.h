@@ -117,17 +117,18 @@ uint32_t SimpleNBAutoBaud(T& SerialAT, uint32_t minimum = 9600,
 }
 
 template <class T>
-bool SimpleNBBegin(T& SerialAT, uint32_t rate) {
+bool SimpleNBBegin(T& SerialAT, uint32_t rate, uint32_t RX_pin, uint32_t TX_pin) {
   DBG("Communicate at baud rate", rate, "...");
-  SerialAT.begin(rate);
-  delay(10);
+  SerialAT.begin(rate,SERIAL_8N1,RX_pin,TX_pin);
+  delay(500);
   for (int j = 0; j < 10; j++) {
     SerialAT.print("AT\r\n");
     String input = SerialAT.readString();
+    Serial.println(input);
     if (input.indexOf("OK") >= 0) {
       return true;
     }
-    delay(10);
+    delay(100);
   }
   DBG("No response from modem, check your hardware connection");
   return false;
